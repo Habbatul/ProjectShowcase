@@ -1,5 +1,5 @@
 definitions:
-  main.Project:
+  Service.Project:
     properties:
       description:
         type: string
@@ -26,7 +26,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/main.Project'
+              $ref: '#/definitions/Service.Project'
             type: array
       summary: Get all projects
       tags:
@@ -48,7 +48,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/main.Project'
+            $ref: '#/definitions/Service.Project'
       summary: Get project by ID
       tags:
       - Projects
@@ -63,14 +63,14 @@ paths:
         name: project
         required: true
         schema:
-          $ref: '#/definitions/main.Project'
+          $ref: '#/definitions/Service.Project'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/main.Project'
+            $ref: '#/definitions/Service.Project'
       summary: Create a project
       tags:
       - Projects
@@ -111,14 +111,14 @@ paths:
         name: project
         required: true
         schema:
-          $ref: '#/definitions/main.Project'
+          $ref: '#/definitions/Service.Project'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/main.Project'
+            $ref: '#/definitions/Service.Project'
       summary: Update a project
       tags:
       - Projects

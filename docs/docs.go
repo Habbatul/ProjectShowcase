@@ -34,7 +34,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/main.Project"
+                                "$ref": "#/definitions/service.Project"
                             }
                         }
                     }
@@ -61,7 +61,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/main.Project"
+                            "$ref": "#/definitions/service.Project"
                         }
                     }
                 ],
@@ -69,7 +69,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/main.Project"
+                            "$ref": "#/definitions/service.Project"
                         }
                     }
                 }
@@ -134,7 +134,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/main.Project"
+                            "$ref": "#/definitions/service.Project"
                         }
                     }
                 ],
@@ -142,7 +142,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.Project"
+                            "$ref": "#/definitions/service.Project"
                         }
                     }
                 }
@@ -174,7 +174,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.Project"
+                            "$ref": "#/definitions/service.Project"
                         }
                     }
                 }
@@ -182,7 +182,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "main.Project": {
+        "service.Project": {
             "type": "object",
             "properties": {
                 "description": {

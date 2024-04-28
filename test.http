@@ -9,7 +9,7 @@ POST http://localhost:8080/projects/create
 Content-Type: application/json
 
 {
-  "name": "Project Barus",
+  "name": "Project Barusd",
   "description": "Deskripsi project baru"
 }
 
@@ -23,4 +23,4 @@ Content-Type: application/json
 }
 
 ### Delete project
-DELETE http://localhost:8080/projects/delete/1
+DELETE http://localhost:8080/projects/delete/4
