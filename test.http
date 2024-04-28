@@ -1,0 +1,26 @@
+### Get all projects
+GET http://localhost:8080/projects
+
+### Get project by ID
+GET http://localhost:8080/projects/1
+
+### Create project
+POST http://localhost:8080/projects/create
+Content-Type: application/json
+
+{
+  "name": "Project Barus",
+  "description": "Deskripsi project baru"
+}
+
+### Update project
+PUT http://localhost:8080/projects/update/2
+Content-Type: application/json
+
+{
+  "name": "Project Diperbaruikah",
+  "description": "Deskripsi project diperbarui"
+}
+
+### Delete project
+DELETE http://localhost:8080/projects/delete/1
