@@ -1,6 +1,7 @@
 package main
 
 import (
+	"awesomeProject/config"
 	_ "awesomeProject/docs"
 	"awesomeProject/service"
 	"fmt"
@@ -17,11 +18,13 @@ import (
 func main() {
 	var err error
 
-	http.HandleFunc("/projects", service.GetProjects)
-	http.HandleFunc("/projects/", service.GetProjectByID)
-	http.HandleFunc("/projects/create", service.CreateProject)
-	http.HandleFunc("/projects/update/", service.UpdateProject)
-	http.HandleFunc("/projects/delete/", service.DeleteProject)
+	portofolioService := service.NewPortofolioService(config.ConnectDB())
+
+	http.HandleFunc("/projects", portofolioService.GetProjects)
+	http.HandleFunc("/projects/", portofolioService.GetProjectByID)
+	http.HandleFunc("/projects/create", portofolioService.CreateProject)
+	http.HandleFunc("/projects/update/", portofolioService.UpdateProject)
+	http.HandleFunc("/projects/delete/", portofolioService.DeleteProject)
 
 	http.Handle("/swagger/", httpSwagger.Handler(
 		httpSwagger.URL("/swagger/doc.json"), // URL to api endpoint

@@ -1,7 +1,7 @@
 package service
 
 import (
-	"awesomeProject/config"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -9,12 +9,22 @@ import (
 	"strconv"
 )
 
-var db = config.ConnectDB()
+type PortofolioService struct {
+	db *sql.DB
+}
+
+func NewPortofolioService(db *sql.DB) *PortofolioService {
+	return &PortofolioService{
+		db: db,
+	}
+}
 
 type Project struct {
-	ID          int
-	Name        string
-	Description string
+	ID          int    `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Category    string `json:"category"`
+	TechStack   string `json:"techstack"`
 }
 
 // @Summary Get all projects
@@ -24,14 +34,15 @@ type Project struct {
 // @Produce  json
 // @Success 200 {array} Project
 // @Router /projects [get]
-func GetProjects(w http.ResponseWriter, r *http.Request) {
+func (p *PortofolioService) GetProjects(w http.ResponseWriter, r *http.Request) {
 	log.Println("getProjects dijalankan")
 
 	if r.Method != "GET" {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+		return
 	}
 
-	rows, err := db.Query("SELECT id, name, description FROM project")
+	rows, err := p.db.Query("SELECT id, name, description, category, techstack FROM project")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -41,7 +52,7 @@ func GetProjects(w http.ResponseWriter, r *http.Request) {
 	var projects []Project
 	for rows.Next() {
 		var project Project
-		err := rows.Scan(&project.ID, &project.Name, &project.Description)
+		err := rows.Scan(&project.ID, &project.Name, &project.Description, &project.Category, &project.TechStack)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -61,10 +72,11 @@ func GetProjects(w http.ResponseWriter, r *http.Request) {
 // @Param id path int true "Project ID"
 // @Success 200 {object} Project
 // @Router /projects/{id} [get]
-func GetProjectByID(w http.ResponseWriter, r *http.Request) {
+func (p *PortofolioService) GetProjectByID(w http.ResponseWriter, r *http.Request) {
 	log.Println("getProjectByID dijalankan")
 	if r.Method != "GET" {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+		return
 	}
 
 	idStr := r.URL.Path[len("/projects/"):]
@@ -74,10 +86,10 @@ func GetProjectByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	row := db.QueryRow("SELECT id, name, description FROM project WHERE id = $1", id)
+	row := p.db.QueryRow("SELECT id, name, description, category, techstack FROM project WHERE id = $1", id)
 
 	var project Project
-	err = row.Scan(&project.ID, &project.Name, &project.Description)
+	err = row.Scan(&project.ID, &project.Name, &project.Description, &project.Category, &project.TechStack)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -95,10 +107,11 @@ func GetProjectByID(w http.ResponseWriter, r *http.Request) {
 // @Param project body Project true "Project object"
 // @Success 201 {object} Project
 // @Router /projects/create [post]
-func CreateProject(w http.ResponseWriter, r *http.Request) {
+func (p *PortofolioService) CreateProject(w http.ResponseWriter, r *http.Request) {
 	log.Println("createProject dijalankan")
 	if r.Method != "POST" {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+		return
 	}
 
 	var project Project
@@ -108,7 +121,7 @@ func CreateProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = db.Exec("INSERT INTO project (name, description) VALUES ($1, $2)", project.Name, project.Description)
+	_, err = p.db.Exec("INSERT INTO project (name, description, category, techstack) VALUES ($1, $2, $3, $4)", project.Name, project.Description, project.Category, project.TechStack)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -127,10 +140,11 @@ func CreateProject(w http.ResponseWriter, r *http.Request) {
 // @Param project body Project true "Project object"
 // @Success 200 {object} Project
 // @Router /projects/update/{id} [put]
-func UpdateProject(w http.ResponseWriter, r *http.Request) {
+func (p *PortofolioService) UpdateProject(w http.ResponseWriter, r *http.Request) {
 	log.Println("updateProject dijalankan")
 	if r.Method != "PUT" {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+		return
 	}
 
 	idStr := r.URL.Path[len("/projects/update/"):]
@@ -147,7 +161,9 @@ func UpdateProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = db.Exec("UPDATE project SET name=$1, description=$2 WHERE id=$3", project.Name, project.Description, id)
+	_, err = p.db.Exec("UPDATE project SET name=$1, description=$2, category=$3, techstack=$4 WHERE id=$5",
+		project.Name, project.Description, project.Category, project.TechStack, id)
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -166,11 +182,12 @@ func UpdateProject(w http.ResponseWriter, r *http.Request) {
 // @Param id path int true "Project ID"
 // @Success 200 {string} string
 // @Router /projects/delete/{id} [delete]
-func DeleteProject(w http.ResponseWriter, r *http.Request) {
+func (p *PortofolioService) DeleteProject(w http.ResponseWriter, r *http.Request) {
 	log.Println("deleteProject dijalankan")
 
 	if r.Method != "DELETE" {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+		return
 	}
 
 	idStr := r.URL.Path[len("/projects/delete/"):]
@@ -180,7 +197,7 @@ func DeleteProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = db.Exec("DELETE FROM project WHERE id=$1", id)
+	_, err = p.db.Exec("DELETE FROM project WHERE id=$1", id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
