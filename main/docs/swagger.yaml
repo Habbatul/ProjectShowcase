@@ -1,0 +1,152 @@
+definitions:
+  entity.Image:
+    properties:
+      id:
+        type: integer
+      project_id:
+        type: integer
+      url_img:
+        type: string
+    type: object
+  entity.Project:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      images:
+        items:
+          $ref: '#/definitions/entity.Image'
+        type: array
+      name:
+        type: string
+      note:
+        type: string
+      tags:
+        items:
+          $ref: '#/definitions/entity.Tag'
+        type: array
+      url_project:
+        type: string
+    type: object
+  entity.Tag:
+    properties:
+      id:
+        type: integer
+      name_tag:
+        type: string
+      projects:
+        description: ProjectIDs akan dikelola oleh GORM sebagai bagian dari relasi
+          many-to-many
+        items:
+          $ref: '#/definitions/entity.Project'
+        type: array
+    type: object
+  model.ProjectResponse:
+    properties:
+      description:
+        type: string
+      images:
+        items:
+          type: string
+        type: array
+      name:
+        type: string
+      note:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      url_project:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /projects:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Create a new project with associated tags and images using form-data
+      parameters:
+      - description: Project Name
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: Project Description
+        in: formData
+        name: description
+        required: true
+        type: string
+      - description: Project Note
+        in: formData
+        name: note
+        type: string
+      - description: Project URL
+        in: formData
+        name: url_project
+        type: string
+      - collectionFormat: multi
+        description: Tag item
+        in: formData
+        items:
+          type: string
+        name: tags[]
+        type: array
+      - collectionFormat: multi
+        description: Images
+        in: formData
+        items:
+          type: file
+        name: images
+        type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entity.Project'
+        "400":
+          description: Invalid form data
+          schema:
+            type: string
+        "500":
+          description: Failed to create project
+          schema:
+            type: string
+      summary: Create a new project with images and tags
+      tags:
+      - Projects
+  /projects/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve project details by project ID
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ProjectResponse'
+        "400":
+          description: Invalid project ID
+          schema:
+            type: string
+        "404":
+          description: Project not found
+          schema:
+            type: string
+      summary: Get project by ID
+      tags:
+      - Projects
+swagger: "2.0"

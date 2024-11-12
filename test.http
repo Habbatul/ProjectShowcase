@@ -8,23 +8,9 @@ GET http://localhost:8080/projects/6
 POST http://localhost:8080/projects/create
 Content-Type: application/json
 
-{
-  "name": "Project Barusd",
-  "description": "Deskripsi project baru",
-  "category": "Kategori Baru",
-  "techstack": "Tech Stack Baru"
-}
-
 ### Update project
 PUT http://localhost:8080/projects/update/111
 Content-Type: application/json
-
-{
-  "name": "Project Diperbaruikah",
-  "description": "Deskripsi project diperbarui",
-  "category": "Kategori Diperbarui",
-  "techstack": "Tech Stack Diperbarui"
-}
 
 ### Delete project
 DELETE http://localhost:8080/projects/delete/10

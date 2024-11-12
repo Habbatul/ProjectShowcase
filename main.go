@@ -1,38 +1,53 @@
 package main
 
 import (
-	"awesomeProject/config"
-	_ "awesomeProject/docs"
-	"awesomeProject/service"
-	"fmt"
-	_ "github.com/lib/pq"
-	"github.com/swaggo/http-swagger"
+	"awesomeProject/main/config"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"log"
-	"net/http"
+
+	_ "awesomeProject/main/docs" //docs api hasil generate swagger
+	"github.com/gofiber/fiber/v2"
+	"github.com/swaggo/http-swagger"
+	"github.com/valyala/fasthttp/fasthttpadaptor"
 )
 
-//@title Portofolio API
-//@version 1.0
-//@description Ini adalah API untuk portofolio
-
 func main() {
-	var err error
+	config.ConnectDatabase()
+	config.MigrateDatabase()
 
-	portofolioService := service.NewPortofolioService(config.ConnectDB())
+	app := fiber.New()
 
-	http.HandleFunc("/projects", portofolioService.GetProjects)
-	http.HandleFunc("/projects/", portofolioService.GetProjectByID)
-	http.HandleFunc("/projects/create", portofolioService.CreateProject)
-	http.HandleFunc("/projects/update/", portofolioService.UpdateProject)
-	http.HandleFunc("/projects/delete/", portofolioService.DeleteProject)
+	app.Use(logger.New())
 
-	http.Handle("/swagger/", httpSwagger.Handler(
-		httpSwagger.URL("/swagger/doc.json"), // URL to api endpoint
-	))
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "*",
+	}))
 
-	fmt.Println("Server running on port :8080")
-	err = http.ListenAndServe(":8080", nil)
+	//inject
+	projectController, err := InitializeProject()
+
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error initializing project controller: %v", err)
 	}
+
+	//route ke swagger
+	app.Get("/swagger/*", func(c *fiber.Ctx) error {
+		//konversi handler swagger
+		handler := fasthttpadaptor.NewFastHTTPHandler(httpSwagger.Handler(
+			httpSwagger.URL("/swagger/doc.json"), //url ke doc.json
+		))
+
+		//Menggunakan handler fasthttp pada Fiber
+		handler(c.Context()) //Panggil handler fasthttp
+
+		return nil
+	})
+
+	//route
+	app.Get("/projects/:id", projectController.GetProjectDetails)
+	app.Post("/projects", projectController.CreateProject)
+	app.Static("/project-images", "./uploads/images")
+
+	log.Fatal(app.Listen(":8080"))
 }
