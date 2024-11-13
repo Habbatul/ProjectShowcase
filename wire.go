@@ -18,3 +18,12 @@ func InitializeProject() (*controller.ProjectController, error) {
 	)
 	return nil, nil
 }
+
+func InitializeCategory() (*controller.CategoryController, error) {
+	wire.Build(
+		controller.NewCategoryController,
+		service.NewCategoryService,
+		repository.NewCategoryRepository,
+	)
+	return nil, nil
+}

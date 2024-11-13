@@ -1,62 +1,4 @@
 definitions:
-  entity.Category:
-    properties:
-      category:
-        type: string
-      id:
-        type: integer
-      projects:
-        items:
-          $ref: '#/definitions/entity.Project'
-        type: array
-    type: object
-  entity.Image:
-    properties:
-      id:
-        type: integer
-      project_id:
-        type: integer
-      url_img:
-        type: string
-    type: object
-  entity.Project:
-    properties:
-      categories:
-        items:
-          $ref: '#/definitions/entity.Category'
-        type: array
-      description:
-        type: string
-      id:
-        type: integer
-      images:
-        items:
-          $ref: '#/definitions/entity.Image'
-        type: array
-      name:
-        type: string
-      note:
-        type: string
-      overview:
-        type: string
-      tags:
-        items:
-          $ref: '#/definitions/entity.Tag'
-        type: array
-      url_project:
-        type: string
-    type: object
-  entity.Tag:
-    properties:
-      id:
-        type: integer
-      name_tag:
-        type: string
-      projects:
-        items:
-          $ref: '#/definitions/entity.Project'
-        type: array
-    type: object
   model.ProjectResponse:
     properties:
       categories:
@@ -65,6 +7,8 @@ definitions:
         type: array
       description:
         type: string
+      id:
+        type: integer
       images:
         items:
           type: string
@@ -85,7 +29,41 @@ definitions:
 info:
   contact: {}
 paths:
-  /projects:
+  /category/names:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all category names
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            properties:
+              categories:
+                items:
+                  type: string
+                type: array
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+      summary: Get list category names
+      tags:
+      - Categories
+  /project:
     get:
       consumes:
       - application/json
@@ -106,15 +84,26 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/model.ProjectResponse'
-            type: array
+            properties:
+              projects:
+                items:
+                  $ref: '#/definitions/model.ProjectResponse'
+                type: array
+            type: object
         "400":
-          description: Invalid parameters
-          schema: {}
+          description: Bad Request
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
         "404":
-          description: Projects not found
-          schema: {}
+          description: Not Found
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
       summary: Get all projects with pagination and category filter
       tags:
       - Projects
@@ -173,17 +162,28 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/entity.Project'
+            properties:
+              message:
+                type: string
+            type: object
         "400":
-          description: Invalid form data
-          schema: {}
+          description: Bad Request
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
         "500":
-          description: Failed to create project
-          schema: {}
+          description: Internal Server Error
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
       summary: Create a new project with images and tags
       tags:
       - Projects
-  /projects/{id}:
+  /project/{id}:
     get:
       consumes:
       - application/json
@@ -202,11 +202,19 @@ paths:
           schema:
             $ref: '#/definitions/model.ProjectResponse'
         "400":
-          description: Invalid project ID
-          schema: {}
+          description: Bad Request
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
         "404":
-          description: Project not found
-          schema: {}
+          description: Not Found
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
       summary: Get project by ID
       tags:
       - Projects
