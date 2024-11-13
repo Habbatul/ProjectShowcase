@@ -26,6 +26,7 @@ func main() {
 
 	//inject
 	projectController, err := InitializeProject()
+	categoryController, err := InitializeCategory()
 
 	if err != nil {
 		log.Fatalf("Error initializing project controller: %v", err)
@@ -45,9 +46,10 @@ func main() {
 	})
 
 	//route
-	app.Get("/projects/:id", projectController.GetProjectDetails)
-	app.Get("/projects", projectController.GetAllProject)
-	app.Post("/projects", projectController.AddProject)
+	app.Get("/project/:id", projectController.GetProjectDetails)
+	app.Get("/project", projectController.GetAllProject)
+	app.Post("/project", projectController.AddProject)
+	app.Get("/category/names", categoryController.ShowAllCategoryNames)
 	app.Static("/project-images", "./uploads/images")
 
 	log.Fatal(app.Listen(":8080"))

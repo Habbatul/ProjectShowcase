@@ -1,6 +1,7 @@
 package model
 
 type ProjectResponse struct {
+	Id          uint     `json:"id"`
 	Name        string   `json:"name"`
 	Overview    string   `json:"overview"`
 	Description string   `json:"description"`

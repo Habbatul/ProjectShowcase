@@ -3,12 +3,13 @@
 Restful API CRUD to build your portfolio app. You can create your project documentation and showcase using this Restful API.
 
 ## Feature
-- Save multiple images in one project.
-- Store multiple tags in one project.
-- Store multiple category in one project.
+- Save multiple images in one project. 
+- Store multiple tags for a single project.
+- Store multiple categories for a single project.
+- Maintain relationships for existing categories and tags without duplicating entries.
 - Filtering list project by category.
-- Cursor Pagination (use the last project ID from the previous page as the **cursor** to load the next page of projects)
-- This project use OOP and Dependency Injection
+- Cursor Pagination (use the last project ID from the previous page as the **cursor** to load the next page of projects).
+- This project use OOP and Dependency Injection.
 
 ## ⌨️ Tech Stack
 

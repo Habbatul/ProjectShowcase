@@ -78,6 +78,7 @@ func (s *ProjectService) GetAllProject(cursor uint, categoryName string) ([]mode
 		}
 
 		projectResponses = append(projectResponses, model.ProjectResponse{
+			Id:          project.ID,
 			Name:        project.Name,
 			Overview:    project.Overview,
 			Description: project.Description,
@@ -92,7 +93,7 @@ func (s *ProjectService) GetAllProject(cursor uint, categoryName string) ([]mode
 	return projectResponses, nil
 }
 
-func (s *ProjectService) CreateProject(dto *model.ProjectRequest) (entity.Project, error) {
+func (s *ProjectService) CreateProject(dto *model.ProjectRequest) error {
 	project := entity.Project{
 		Name:        dto.Name,
 		Overview:    dto.Overview,
@@ -109,17 +110,17 @@ func (s *ProjectService) CreateProject(dto *model.ProjectRequest) (entity.Projec
 		project.Categories = append(project.Categories, entity.Category{Name: categoryName})
 	}
 
-	var baseUrl = "http://localhost:8080/"
+	var baseUrl = "http://localhost:8080"
 	for _, fileHeader := range dto.Images {
 		fileName, err := saveImage(fileHeader, project.Name)
 		if err != nil {
-			return project, err
+			return err
 		}
 		project.Images = append(project.Images, entity.Image{URLImg: baseUrl + "/project-images/" + fileName})
 	}
 
 	err := s.ProjectRepository.CreateProject(&project)
-	return project, err
+	return err
 }
 
 func saveImage(fileHeader *multipart.FileHeader, projectName string) (string, error) {

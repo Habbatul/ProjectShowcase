@@ -22,21 +22,21 @@ func NewProjectController(projectService *service.ProjectService) *ProjectContro
 // @Produce json
 // @Param id path int true "Project ID"
 // @Success 200 {object} model.ProjectResponse
-// @Failure 400 {object} error "Invalid project ID"
-// @Failure 404 {object} error "Project not found"
-// @Router /projects/{id} [get]
-func (pc *ProjectController) GetProjectDetails(c *fiber.Ctx) error {
-	id, err := c.ParamsInt("id")
+// @Failure 400 {object} object{error=string}
+// @Failure 404 {object} object{error=string}
+// @Router /project/{id} [get]
+func (pc *ProjectController) GetProjectDetails(ctx *fiber.Ctx) error {
+	id, err := ctx.ParamsInt("id")
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid project ID"})
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid project ID"})
 	}
 
 	project, err := pc.ProjectService.GetProjectDetails(uint(id))
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Project not found"})
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Project not found"})
 	}
 
-	return c.JSON(project)
+	return ctx.JSON(project)
 }
 
 // GetAllProject godoc
@@ -47,21 +47,21 @@ func (pc *ProjectController) GetProjectDetails(c *fiber.Ctx) error {
 // @Produce json
 // @Param category query string false "Project Category Name"
 // @Param cursor query int false "Cursor for pagination"
-// @Success 200 {object} []model.ProjectResponse
-// @Failure 400 {object} error "Invalid parameters"
-// @Failure 404 {object} error "Projects not found"
-// @Router /projects [get]
-func (pc *ProjectController) GetAllProject(c *fiber.Ctx) error {
-	category := c.Query("category", "")
+// @Success 200 {object} object{projects=[]model.ProjectResponse}
+// @Failure 400 {object} object{error=string}
+// @Failure 404 {object} object{error=string}
+// @Router /project [get]
+func (pc *ProjectController) GetAllProject(ctx *fiber.Ctx) error {
+	category := ctx.Query("category", "")
 
-	cursor := c.QueryInt("cursor", 0)
+	cursor := ctx.QueryInt("cursor", 0)
 
 	projects, err := pc.ProjectService.GetAllProject(uint(cursor), category)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Projects not found"})
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Projects not found"})
 	}
 
-	return c.JSON(projects)
+	return ctx.JSON(fiber.Map{"projects": projects})
 }
 
 // AddProject godoc
@@ -78,23 +78,23 @@ func (pc *ProjectController) GetAllProject(c *fiber.Ctx) error {
 // @Param categories[] formData []string false "Category item" collectionFormat(multi)
 // @Param tags[] formData []string false "Tag item" collectionFormat(multi)
 // @Param images[] formData []file false "Images" collectionFormat(multi)
-// @Success 201 {object} entity.Project
-// @Failure 400 {object} error "Invalid form data"
-// @Failure 500 {object} error "Failed to create project"
-// @Router /projects [post]
-func (pc *ProjectController) AddProject(c *fiber.Ctx) error {
+// @Success 201 {object} object{message=string}
+// @Failure 400 {object} object{error=string}
+// @Failure 500 {object} object{error=string}
+// @Router /project [post]
+func (pc *ProjectController) AddProject(ctx *fiber.Ctx) error {
 	var projectRequest model.ProjectRequest
 
-	projectRequest.Name = c.FormValue("name")
-	projectRequest.Overview = c.FormValue("overview")
-	projectRequest.Description = c.FormValue("description")
-	projectRequest.Note = c.FormValue("note")
-	projectRequest.URLProject = c.FormValue("url_project")
+	projectRequest.Name = ctx.FormValue("name")
+	projectRequest.Overview = ctx.FormValue("overview")
+	projectRequest.Description = ctx.FormValue("description")
+	projectRequest.Note = ctx.FormValue("note")
+	projectRequest.URLProject = ctx.FormValue("url_project")
 
 	//ambil semua multiple input collection array
-	form, err := c.MultipartForm()
+	form, err := ctx.MultipartForm()
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid form data"})
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid form data"})
 	}
 
 	//ambil multi tags
@@ -110,12 +110,12 @@ func (pc *ProjectController) AddProject(c *fiber.Ctx) error {
 	}
 
 	//ambil multi images
-	projectRequest.Images = form.File["images"]
+	projectRequest.Images = form.File["images[]"]
 
-	project, err := pc.ProjectService.CreateProject(&projectRequest)
+	err = pc.ProjectService.CreateProject(&projectRequest)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to create project"})
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to create project"})
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(project)
+	return ctx.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "Project created successfully"})
 }
