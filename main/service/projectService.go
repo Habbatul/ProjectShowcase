@@ -19,7 +19,7 @@ func NewProjectService(projectRepository *repository.ProjectRepository) *Project
 }
 
 func (s *ProjectService) GetProjectDetails(id uint) (model.ProjectResponse, error) {
-	project, err := s.ProjectRepository.GetProjectByID(id)
+	project, err := s.ProjectRepository.FindProjectByID(id)
 	if err != nil {
 		return model.ProjectResponse{}, err
 	}
@@ -29,6 +29,11 @@ func (s *ProjectService) GetProjectDetails(id uint) (model.ProjectResponse, erro
 		tags = append(tags, tag.NameTag)
 	}
 
+	var categories []string
+	for _, category := range project.Tags {
+		categories = append(categories, category.NameTag)
+	}
+
 	var images []string
 	for _, image := range project.Images {
 		images = append(images, image.URLImg)
@@ -36,17 +41,61 @@ func (s *ProjectService) GetProjectDetails(id uint) (model.ProjectResponse, erro
 
 	return model.ProjectResponse{
 		Name:        project.Name,
+		Overview:    project.Overview,
 		Description: project.Description,
 		Note:        project.Note,
 		URLProject:  project.URLProject,
+		Categories:  categories,
 		Tags:        tags,
 		Images:      images,
 	}, nil
 }
 
-func (s *ProjectService) CreateProjectWithImagesAndTags(dto *model.ProjectRequest) (entity.Project, error) {
+func (s *ProjectService) GetAllProject(cursor uint, categoryName string) ([]model.ProjectResponse, error) {
+	const limit = 5
+
+	projects, err := s.ProjectRepository.FindAllProject(limit, cursor, categoryName)
+	if err != nil {
+		return nil, err
+	}
+
+	var projectResponses []model.ProjectResponse
+
+	for _, project := range projects {
+		var tags []string
+		for _, tag := range project.Tags {
+			tags = append(tags, tag.NameTag)
+		}
+
+		var categories []string
+		for _, catagory := range project.Categories {
+			categories = append(categories, catagory.Name)
+		}
+
+		var images []string
+		for _, image := range project.Images {
+			images = append(images, image.URLImg)
+		}
+
+		projectResponses = append(projectResponses, model.ProjectResponse{
+			Name:        project.Name,
+			Overview:    project.Overview,
+			Description: project.Description,
+			Note:        project.Note,
+			URLProject:  project.URLProject,
+			Categories:  categories,
+			Tags:        tags,
+			Images:      images,
+		})
+	}
+
+	return projectResponses, nil
+}
+
+func (s *ProjectService) CreateProject(dto *model.ProjectRequest) (entity.Project, error) {
 	project := entity.Project{
 		Name:        dto.Name,
+		Overview:    dto.Overview,
 		Description: dto.Description,
 		Note:        dto.Note,
 		URLProject:  dto.URLProject,
@@ -56,15 +105,20 @@ func (s *ProjectService) CreateProjectWithImagesAndTags(dto *model.ProjectReques
 		project.Tags = append(project.Tags, entity.Tag{NameTag: tagName})
 	}
 
+	for _, categoryName := range dto.Categories {
+		project.Categories = append(project.Categories, entity.Category{Name: categoryName})
+	}
+
+	var baseUrl = "http://localhost:8080/"
 	for _, fileHeader := range dto.Images {
 		fileName, err := saveImage(fileHeader, project.Name)
 		if err != nil {
 			return project, err
 		}
-		project.Images = append(project.Images, entity.Image{URLImg: "/project-images/" + fileName})
+		project.Images = append(project.Images, entity.Image{URLImg: baseUrl + "/project-images/" + fileName})
 	}
 
-	err := s.ProjectRepository.CreateProjectWithTagsAndImages(&project)
+	err := s.ProjectRepository.CreateProject(&project)
 	return project, err
 }
 

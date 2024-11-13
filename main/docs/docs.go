@@ -16,6 +16,52 @@ const docTemplate = `{
     "basePath": "{{.BasePath}}",
     "paths": {
         "/projects": {
+            "get": {
+                "description": "Retrieve project details with cursor-based pagination and optional category filter",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Projects"
+                ],
+                "summary": "Get all projects with pagination and category filter",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project Category Name",
+                        "name": "category",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Cursor for pagination",
+                        "name": "cursor",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.ProjectResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid parameters",
+                        "schema": {}
+                    },
+                    "404": {
+                        "description": "Projects not found",
+                        "schema": {}
+                    }
+                }
+            },
             "post": {
                 "description": "Create a new project with associated tags and images using form-data",
                 "consumes": [
@@ -33,6 +79,13 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Project Name",
                         "name": "name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Project Overview",
+                        "name": "overview",
                         "in": "formData",
                         "required": true
                     },
@@ -61,6 +114,16 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "collectionFormat": "multi",
+                        "description": "Category item",
+                        "name": "categories[]",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
                         "description": "Tag item",
                         "name": "tags[]",
                         "in": "formData"
@@ -72,7 +135,7 @@ const docTemplate = `{
                         },
                         "collectionFormat": "multi",
                         "description": "Images",
-                        "name": "images",
+                        "name": "images[]",
                         "in": "formData"
                     }
                 ],
@@ -85,15 +148,11 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Invalid form data",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "schema": {}
                     },
                     "500": {
                         "description": "Failed to create project",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "schema": {}
                     }
                 }
             }
@@ -129,21 +188,34 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Invalid project ID",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "schema": {}
                     },
                     "404": {
                         "description": "Project not found",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "schema": {}
                     }
                 }
             }
         }
     },
     "definitions": {
+        "entity.Category": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "projects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Project"
+                    }
+                }
+            }
+        },
         "entity.Image": {
             "type": "object",
             "properties": {
@@ -161,6 +233,12 @@ const docTemplate = `{
         "entity.Project": {
             "type": "object",
             "properties": {
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Category"
+                    }
+                },
                 "description": {
                     "type": "string"
                 },
@@ -177,6 +255,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "note": {
+                    "type": "string"
+                },
+                "overview": {
                     "type": "string"
                 },
                 "tags": {
@@ -200,7 +281,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "projects": {
-                    "description": "ProjectIDs akan dikelola oleh GORM sebagai bagian dari relasi many-to-many",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/entity.Project"
@@ -211,6 +291,12 @@ const docTemplate = `{
         "model.ProjectResponse": {
             "type": "object",
             "properties": {
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "description": {
                     "type": "string"
                 },
@@ -224,6 +310,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "note": {
+                    "type": "string"
+                },
+                "overview": {
                     "type": "string"
                 },
                 "tags": {

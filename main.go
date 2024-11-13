@@ -46,7 +46,8 @@ func main() {
 
 	//route
 	app.Get("/projects/:id", projectController.GetProjectDetails)
-	app.Post("/projects", projectController.CreateProject)
+	app.Get("/projects", projectController.GetAllProject)
+	app.Post("/projects", projectController.AddProject)
 	app.Static("/project-images", "./uploads/images")
 
 	log.Fatal(app.Listen(":8080"))
