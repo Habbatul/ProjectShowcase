@@ -30,8 +30,8 @@ func (s *ProjectService) GetProjectDetails(id uint) (model.ProjectResponse, erro
 	}
 
 	var categories []string
-	for _, category := range project.Tags {
-		categories = append(categories, category.NameTag)
+	for _, category := range project.Categories {
+		categories = append(categories, category.Name)
 	}
 
 	var images []string
@@ -40,6 +40,7 @@ func (s *ProjectService) GetProjectDetails(id uint) (model.ProjectResponse, erro
 	}
 
 	return model.ProjectResponse{
+		Id:          project.ID,
 		Name:        project.Name,
 		Overview:    project.Overview,
 		Description: project.Description,
@@ -51,8 +52,7 @@ func (s *ProjectService) GetProjectDetails(id uint) (model.ProjectResponse, erro
 	}, nil
 }
 
-func (s *ProjectService) GetAllProject(cursor uint, categoryName string) ([]model.ProjectResponse, error) {
-	const limit = 5
+func (s *ProjectService) GetAllProject(cursor uint, categoryName string, limit int) ([]model.ProjectResponse, error) {
 
 	projects, err := s.ProjectRepository.FindAllProject(limit, cursor, categoryName)
 	if err != nil {
@@ -110,7 +110,7 @@ func (s *ProjectService) CreateProject(dto *model.ProjectRequest) error {
 		project.Categories = append(project.Categories, entity.Category{Name: categoryName})
 	}
 
-	var baseUrl = "http://localhost:8080"
+	var baseUrl = "http://192.168.71.3:8080"
 	for _, fileHeader := range dto.Images {
 		fileName, err := saveImage(fileHeader, project.Name)
 		if err != nil {

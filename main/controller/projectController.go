@@ -46,7 +46,8 @@ func (pc *ProjectController) GetProjectDetails(ctx *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param category query string false "Project Category Name"
-// @Param cursor query int false "Cursor for pagination"
+// @Param cursor query int false "Cursor for pagination, default : 0"
+// @Param cursor query int false "Limit for pagination, default : 6"
 // @Success 200 {object} object{projects=[]model.ProjectResponse}
 // @Failure 400 {object} object{error=string}
 // @Failure 404 {object} object{error=string}
@@ -55,8 +56,9 @@ func (pc *ProjectController) GetAllProject(ctx *fiber.Ctx) error {
 	category := ctx.Query("category", "")
 
 	cursor := ctx.QueryInt("cursor", 0)
+	limit := ctx.QueryInt("limit", 6)
 
-	projects, err := pc.ProjectService.GetAllProject(uint(cursor), category)
+	projects, err := pc.ProjectService.GetAllProject(uint(cursor), category, limit)
 	if err != nil {
 		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Projects not found"})
 	}

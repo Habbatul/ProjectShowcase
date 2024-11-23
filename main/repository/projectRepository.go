@@ -27,15 +27,16 @@ func (r *ProjectRepository) FindAllProject(limit int, cursor uint, categoryName 
 	query := config.DB.Preload("Tags").Preload("Categories").Preload("Images")
 
 	if categoryName != "" {
-		query = query.Joins("JOIN categories ON categories.id = projects.category_id").
+		query = query.Joins("JOIN project_category ON project_category.project_id = projects.id").
+			Joins("JOIN categories ON categories.id = project_category.category_id").
 			Where("categories.name = ?", categoryName)
 	}
 
 	if cursor > 0 {
-		query = query.Where("projects.id > ?", cursor)
+		query = query.Where("projects.id < ?", cursor)
 	}
 
-	err := query.Order("projects.id ASC").Limit(limit).Find(&projects).Error
+	err := query.Order("projects.id DESC").Limit(limit).Find(&projects).Error
 	if err != nil {
 		return nil, err
 	}
