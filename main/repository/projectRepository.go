@@ -33,10 +33,10 @@ func (r *ProjectRepository) FindAllProject(limit int, cursor uint, categoryName 
 	}
 
 	if cursor > 0 {
-		query = query.Where("projects.id < ?", cursor)
+		query = query.Where("projects.order_number < ?", cursor)
 	}
 
-	err := query.Order("projects.id DESC").Limit(limit).Find(&projects).Error
+	err := query.Order("projects.order_number DESC").Limit(limit).Find(&projects).Error
 	if err != nil {
 		return nil, err
 	}
@@ -46,6 +46,17 @@ func (r *ProjectRepository) FindAllProject(limit int, cursor uint, categoryName 
 
 func (r *ProjectRepository) CreateProject(project *entity.Project) error {
 	tx := config.DB.Begin()
+
+	//kalo kosong isi max order_number + 1
+	if project.OrderNumber == 0 {
+		var maxOrderNumber int32
+		err := tx.Model(&entity.Project{}).Select("COALESCE(MAX(order_number), 0)").Scan(&maxOrderNumber).Error
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+		project.OrderNumber = maxOrderNumber + 1
+	}
 
 	//simpan project dan image
 	if err := tx.Omit("Tags", "Categories").Create(&project).Error; err != nil {

@@ -90,8 +90,14 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "description": "Cursor for pagination",
+                        "description": "Cursor for pagination, default : 0",
                         "name": "cursor",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit for pagination, default : 6",
+                        "name": "limit",
                         "in": "query"
                     }
                 ],
@@ -178,6 +184,18 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Project URL",
                         "name": "url_project",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Video URL",
+                        "name": "url_video",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Order Number",
+                        "name": "number_order",
                         "in": "formData"
                     },
                     {
@@ -331,6 +349,9 @@ const docTemplate = `{
                 "note": {
                     "type": "string"
                 },
+                "order_number": {
+                    "type": "integer"
+                },
                 "overview": {
                     "type": "string"
                 },
@@ -341,6 +362,9 @@ const docTemplate = `{
                     }
                 },
                 "url_project": {
+                    "type": "string"
+                },
+                "url_video": {
                     "type": "string"
                 }
             }

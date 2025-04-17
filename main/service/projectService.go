@@ -46,6 +46,8 @@ func (s *ProjectService) GetProjectDetails(id uint) (model.ProjectResponse, erro
 		Description: project.Description,
 		Note:        project.Note,
 		URLProject:  project.URLProject,
+		URLVideo:    project.URLVideo,
+		OrderNumber: project.OrderNumber,
 		Categories:  categories,
 		Tags:        tags,
 		Images:      images,
@@ -84,6 +86,8 @@ func (s *ProjectService) GetAllProject(cursor uint, categoryName string, limit i
 			Description: project.Description,
 			Note:        project.Note,
 			URLProject:  project.URLProject,
+			URLVideo:    project.URLVideo,
+			OrderNumber: project.OrderNumber,
 			Categories:  categories,
 			Tags:        tags,
 			Images:      images,
@@ -100,6 +104,8 @@ func (s *ProjectService) CreateProject(dto *model.ProjectRequest) error {
 		Description: dto.Description,
 		Note:        dto.Note,
 		URLProject:  dto.URLProject,
+		URLVideo:    dto.URLVideo,
+		OrderNumber: dto.OrderNumber,
 	}
 
 	for _, tagName := range dto.Tags {

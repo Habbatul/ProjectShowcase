@@ -17,6 +17,8 @@ definitions:
         type: string
       note:
         type: string
+      order_number:
+        type: integer
       overview:
         type: string
       tags:
@@ -24,6 +26,8 @@ definitions:
           type: string
         type: array
       url_project:
+        type: string
+      url_video:
         type: string
     type: object
 info:
@@ -74,9 +78,13 @@ paths:
         in: query
         name: category
         type: string
-      - description: Cursor for pagination
+      - description: 'Cursor for pagination, default : 0'
         in: query
         name: cursor
+        type: integer
+      - description: 'Limit for pagination, default : 6'
+        in: query
+        name: limit
         type: integer
       produces:
       - application/json
@@ -135,6 +143,14 @@ paths:
         in: formData
         name: url_project
         type: string
+      - description: Video URL
+        in: formData
+        name: url_video
+        type: string
+      - description: Order Number
+        in: formData
+        name: number_order
+        type: integer
       - collectionFormat: multi
         description: Category item
         in: formData

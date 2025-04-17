@@ -4,6 +4,7 @@ import (
 	"awesomeProject/main/model"
 	"awesomeProject/main/service"
 	"github.com/gofiber/fiber/v2"
+	"strconv"
 )
 
 type ProjectController struct {
@@ -47,7 +48,7 @@ func (pc *ProjectController) GetProjectDetails(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param category query string false "Project Category Name"
 // @Param cursor query int false "Cursor for pagination, default : 0"
-// @Param cursor query int false "Limit for pagination, default : 6"
+// @Param limit query int false "Limit for pagination, default : 6"
 // @Success 200 {object} object{projects=[]model.ProjectResponse}
 // @Failure 400 {object} object{error=string}
 // @Failure 404 {object} object{error=string}
@@ -77,6 +78,8 @@ func (pc *ProjectController) GetAllProject(ctx *fiber.Ctx) error {
 // @Param description formData string true "Project Description"
 // @Param note formData string false "Project Note"
 // @Param url_project formData string false "Project URL"
+// @Param url_video formData string false "Video URL"
+// @Param number_order formData int false "Order Number"
 // @Param categories[] formData []string false "Category item" collectionFormat(multi)
 // @Param tags[] formData []string false "Tag item" collectionFormat(multi)
 // @Param images[] formData []file false "Images" collectionFormat(multi)
@@ -92,6 +95,18 @@ func (pc *ProjectController) AddProject(ctx *fiber.Ctx) error {
 	projectRequest.Description = ctx.FormValue("description")
 	projectRequest.Note = ctx.FormValue("note")
 	projectRequest.URLProject = ctx.FormValue("url_project")
+	projectRequest.URLVideo = ctx.FormValue("url_video")
+
+	orderNumberStr := ctx.FormValue("order_number")
+	if orderNumberStr != "" {
+		orderNumberInt, err := strconv.Atoi(orderNumberStr)
+		if err != nil {
+			return err
+		}
+		projectRequest.OrderNumber = int32(orderNumberInt)
+	} else {
+		projectRequest.OrderNumber = 0
+	}
 
 	//ambil semua multiple input collection array
 	form, err := ctx.MultipartForm()
