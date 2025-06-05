@@ -1,4 +1,11 @@
 definitions:
+  model.ImageResponse:
+    properties:
+      id:
+        type: integer
+      image:
+        type: string
+    type: object
   model.ProjectResponse:
     properties:
       categories:
@@ -11,7 +18,7 @@ definitions:
         type: integer
       images:
         items:
-          type: string
+          $ref: '#/definitions/model.ImageResponse'
         type: array
       name:
         type: string
@@ -232,6 +239,107 @@ paths:
                 type: string
             type: object
       summary: Get project by ID
+      tags:
+      - Projects
+    put:
+      consumes:
+      - multipart/form-data
+      description: Update project data by ID. All fields adalah optional—hanya yang
+        dikirim akan diubah.
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Project Name
+        in: formData
+        name: name
+        type: string
+      - description: Project Overview
+        in: formData
+        name: overview
+        type: string
+      - description: Project Description
+        in: formData
+        name: description
+        type: string
+      - description: Project Note
+        in: formData
+        name: note
+        type: string
+      - description: Project URL
+        in: formData
+        name: url_project
+        type: string
+      - description: Video URL
+        in: formData
+        name: url_video
+        type: string
+      - description: Order Number
+        in: formData
+        name: order_number
+        type: integer
+      - collectionFormat: multi
+        description: Category item
+        in: formData
+        items:
+          type: string
+        name: categories[]
+        type: array
+      - collectionFormat: multi
+        description: Tag item
+        in: formData
+        items:
+          type: string
+        name: tags[]
+        type: array
+      - collectionFormat: multi
+        description: Existing Image IDs to keep
+        in: formData
+        items:
+          type: integer
+        name: images_id[]
+        type: array
+      - collectionFormat: multi
+        description: New Images to upload
+        in: formData
+        items:
+          type: file
+        name: images[]
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            properties:
+              message:
+                type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+      summary: Update an existing project including its tags, categories and images
       tags:
       - Projects
 swagger: "2.0"

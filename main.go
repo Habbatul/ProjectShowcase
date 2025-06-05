@@ -49,6 +49,7 @@ func main() {
 	app.Get("/project/:id", projectController.GetProjectDetails)
 	app.Get("/project", projectController.GetAllProject)
 	app.Post("/project", projectController.AddProject)
+	app.Put("/project/:id", projectController.UpdateProject)
 	app.Get("/category/names", categoryController.ShowAllCategoryNames)
 	app.Static("/project-images", "./uploads/images")
 

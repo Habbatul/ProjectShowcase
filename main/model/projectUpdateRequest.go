@@ -2,7 +2,7 @@ package model
 
 import "mime/multipart"
 
-type ProjectRequest struct {
+type ProjectUpdateRequest struct {
 	Name        string                  `json:"name"`
 	Overview    string                  `json:"overview"`
 	Description string                  `json:"description"`
@@ -13,4 +13,5 @@ type ProjectRequest struct {
 	Categories  []string                `json:"categories"`
 	Tags        []string                `json:"tags"`
 	Images      []*multipart.FileHeader `json:"images"`
+	ImagesIds   []uint                  `json:"images_ids"`
 }
